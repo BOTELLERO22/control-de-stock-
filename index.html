@@ -27,74 +27,87 @@
 </head>
 <body class="bg-black text-zinc-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
 
-    <!-- Header Section -->
     <header class="bg-black/90 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="p-2 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-indigo-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-indigo-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    </div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-wide bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">StockControl Black</h1>
                 </div>
-                <h1 class="text-xl font-bold tracking-wide bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">StockControl Black</h1>
             </div>
-            <div id="alertBadge" class="hidden bg-rose-950/40 border border-rose-500/50 text-rose-300 text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center shadow-lg shadow-rose-950/50 animate-pulse">
-                <svg class="w-4 h-4 mr-1.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                <span id="alertCount">0</span>&nbsp;artículos con stock crítico (menos de 5 unidades)
+            <div class="flex flex-wrap items-center justify-end gap-2.5 w-full sm:w-auto">
+                <!-- Sync indicator -->
+                <div id="syncStatus" class="text-xs px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span>Conectando...</span>
+                </div>
+                <div id="alertBadge" class="hidden bg-rose-950/40 border border-rose-500/50 text-rose-300 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center shadow-lg shadow-rose-950/50 animate-pulse">
+                    <svg class="w-4 h-4 mr-1.5 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span><strong id="alertCount">0</strong> artículos con stock crítico</span>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 space-y-8">
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
         
-        <!-- Inventory List & Stats Section (Moved to Top) -->
+        <!-- Inventory List & Stats Section -->
         <section class="space-y-6">
             
             <!-- Quick Stats Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-zinc-950 p-4 rounded-2xl border border-zinc-800/80 shadow-xl flex items-center space-x-4">
-                    <div class="p-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl">
+                <div class="bg-zinc-950 p-4 sm:p-5 rounded-2xl border border-zinc-800/80 shadow-xl flex items-center space-x-4">
+                    <div class="p-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     </div>
-                    <div>
-                        <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Total Artículos</p>
-                        <h3 id="statTotal" class="text-2xl font-bold text-zinc-100">0</h3>
+                    <div class="min-w-0">
+                        <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider truncate">Total Artículos</p>
+                        <h3 id="statTotal" class="text-xl sm:text-2xl font-bold text-zinc-100">0</h3>
                     </div>
                 </div>
-                <div class="bg-zinc-950 p-4 rounded-2xl border border-zinc-800/80 shadow-xl flex items-center space-x-4">
-                    <div class="p-3 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl">
+                <div class="bg-zinc-950 p-4 sm:p-5 rounded-2xl border border-zinc-800/80 shadow-xl flex items-center space-x-4">
+                    <div class="p-3 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
-                    <div>
-                        <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Stock Crítico (Menos de 5)</p>
-                        <h3 id="statCritical" class="text-2xl font-bold text-rose-400">0</h3>
+                    <div class="min-w-0">
+                        <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider truncate">Stock Crítico (&lt;5)</p>
+                        <h3 id="statCritical" class="text-xl sm:text-2xl font-bold text-rose-400">0</h3>
                     </div>
                 </div>
-                <div class="bg-zinc-950 p-4 rounded-2xl border border-zinc-800/80 shadow-xl flex items-center space-x-4">
-                    <div class="p-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl">
+                <div class="bg-zinc-950 p-4 sm:p-5 rounded-2xl border border-zinc-800/80 shadow-xl flex items-center space-x-4 sm:col-span-1">
+                    <div class="p-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <div>
-                        <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Valor Inventario</p>
-                        <h3 id="statValue" class="text-2xl font-bold text-zinc-100">$0.00</h3>
+                    <div class="min-w-0">
+                        <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider truncate">Valor Inventario</p>
+                        <h3 id="statValue" class="text-xl sm:text-2xl font-bold text-zinc-100 truncate">$0.00</h3>
                     </div>
                 </div>
             </div>
 
             <!-- Table Container -->
             <div class="bg-zinc-950 rounded-2xl shadow-2xl border border-zinc-800/80 overflow-hidden">
-                <div class="p-4 border-b border-zinc-800 flex flex-col sm:flex-row justify-between items-center gap-3">
-                    <h3 class="font-semibold text-zinc-100">Inventario Actual</h3>
-                    <input type="text" id="searchInput" oninput="renderTable()" placeholder="Buscar producto..." 
-                           class="w-full sm:w-64 px-3.5 py-2 rounded-xl bg-black border border-zinc-800 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <div class="p-4 sm:p-5 border-b border-zinc-800 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                    <h3 class="font-semibold text-zinc-100 text-base">Inventario Actual</h3>
+                    <div class="relative w-full sm:w-72">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </span>
+                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="Buscar por producto o categoría..." 
+                               class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black border border-zinc-800 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
                         <thead>
                             <tr class="bg-black/80 text-zinc-400 text-xs uppercase tracking-wider font-semibold border-b border-zinc-800">
-                                <th class="p-4">Artículo</th>
-                                <th class="p-4">Categoría</th>
-                                <th class="p-4 text-center">Stock</th>
-                                <th class="p-4 text-right">Precio</th>
-                                <th class="p-4 text-center">Acciones</th>
+                                <th class="p-4 sm:px-6">Artículo</th>
+                                <th class="p-4 sm:px-6">Categoría</th>
+                                <th class="p-4 sm:px-6 text-center">Stock</th>
+                                <th class="p-4 sm:px-6 text-right">Precio</th>
+                                <th class="p-4 sm:px-6 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody" class="divide-y divide-zinc-800/60 text-sm">
@@ -102,50 +115,50 @@
                         </tbody>
                     </table>
                 </div>
-                <div id="emptyState" class="hidden py-12 text-center text-zinc-600">
+                <div id="emptyState" class="hidden py-12 text-center text-zinc-600 text-sm">
                     No se encontraron productos registrados.
                 </div>
             </div>
 
         </section>
 
-        <!-- Form Section (Moved to Bottom) -->
-        <section class="bg-zinc-950 p-6 rounded-2xl border border-zinc-800/80 shadow-2xl">
-            <h2 id="formTitle" class="text-lg font-semibold text-zinc-100 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        <!-- Form Section at the bottom -->
+        <section class="bg-zinc-950 p-5 sm:p-6 rounded-2xl border border-zinc-800/80 shadow-2xl">
+            <h2 id="formTitle" class="text-base sm:text-lg font-semibold text-zinc-100 mb-4 sm:mb-5 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 Registrar / Actualizar Artículo
             </h2>
             <form id="stockForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-                <input type="hidden" id="editIndex" value="-1">
+                <input type="hidden" id="editId" value="">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Nombre del Artículo</label>
                         <input type="text" id="itemName" required placeholder="Ej. Laptops, Tornillos..." 
-                               class="w-full px-4 py-2.5 rounded-xl bg-black border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-zinc-100 placeholder-zinc-600 text-sm transition">
+                               class="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-black border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-zinc-100 placeholder-zinc-600 text-sm transition">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Categoría</label>
                         <input type="text" id="itemCategory" placeholder="Ej. Electrónica, Ferretería" 
-                               class="w-full px-4 py-2.5 rounded-xl bg-black border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-zinc-100 placeholder-zinc-600 text-sm transition">
+                               class="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-black border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-zinc-100 placeholder-zinc-600 text-sm transition">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Stock Actual</label>
                         <input type="number" id="itemStock" required min="0" placeholder="0" 
-                               class="w-full px-4 py-2.5 rounded-xl bg-black border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-zinc-100 placeholder-zinc-600 text-sm transition">
+                               class="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-black border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-zinc-100 placeholder-zinc-600 text-sm transition">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Precio Unitario ($)</label>
                         <input type="number" id="itemPrice" required step="0.01" min="0" placeholder="0.00" 
-                               class="w-full px-4 py-2.5 rounded-xl bg-black border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-zinc-100 placeholder-zinc-600 text-sm transition">
+                               class="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-black border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-zinc-100 placeholder-zinc-600 text-sm transition">
                     </div>
                 </div>
-                <div class="pt-3 flex space-x-3">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-2.5 px-6 rounded-xl transition shadow-lg shadow-indigo-900/30 text-sm">
+                <div class="pt-3 flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium py-3 sm:py-2.5 px-6 rounded-xl transition shadow-lg shadow-indigo-900/30 text-sm">
                         Guardar Producto
                     </button>
-                    <button type="button" onclick="resetForm()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-medium py-2.5 px-6 rounded-xl transition text-sm border border-zinc-800">
+                    <button type="button" onclick="resetForm()" class="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-medium py-3 sm:py-2.5 px-6 rounded-xl transition text-sm border border-zinc-800">
                         Cancelar
                     </button>
                 </div>
@@ -154,67 +167,136 @@
 
     </main>
 
-    <!-- Low Stock Notification Modal -->
+    <!-- Custom Modal for Alerts -->
     <div id="modalContainer" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-        <div class="bg-zinc-950 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-rose-500/40 space-y-4">
+        <div class="bg-zinc-950 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-rose-500/40 space-y-4 mx-4">
             <div class="flex items-center space-x-3 text-rose-400">
-                <div class="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl">
+                <div class="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 </div>
-                <h3 id="modalTitle" class="text-lg font-bold text-zinc-100">¡Alerta de Stock Crítico!</h3>
+                <h3 id="modalTitle" class="text-base sm:text-lg font-bold text-zinc-100">¡Alerta de Stock Crítico!</h3>
             </div>
             <p id="modalMessage" class="text-zinc-300 text-sm leading-relaxed"></p>
             <div class="flex justify-end pt-2">
-                <button onclick="closeModal()" class="bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-lg shadow-rose-950/50">
+                <button onclick="closeModal()" class="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-lg shadow-rose-950/50">
                     Entendido
                 </button>
             </div>
         </div>
     </div>
 
-    <script>
-        // Initial mock data
-        let inventory = [
-            { name: "Teclado Mecánico RGB", category: "Accesorios", stock: 12, price: 45.00 },
-            { name: "Mouse Inalámbrico", category: "Accesorios", stock: 3, price: 18.50 },
-            { name: "Monitor Curvo 27\"", category: "Pantallas", stock: 2, price: 220.00 },
-            { name: "Cable HDMI 2m", category: "Cables", stock: 25, price: 8.00 },
-            { name: "Adaptador USB-C", category: "Accesorios", stock: 4, price: 12.00 }
-        ];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        window.onload = function() {
-            renderTable();
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'stock-control-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "demo", projectId: "demo"
         };
 
-        function handleFormSubmit(e) {
+        let app, db, auth;
+        let inventory = [];
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            console.error("Firebase init error:", e);
+        }
+
+        async function initAuthAndData() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                const syncStatus = document.getElementById('syncStatus');
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-emerald-400">Sincronizado</span>';
+                
+                startRealtimeListener();
+            } catch (err) {
+                console.error("Auth error:", err);
+                const syncStatus = document.getElementById('syncStatus');
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span><span class="text-rose-400">Modo local</span>';
+                loadDefaultLocalData();
+            }
+        }
+
+        function startRealtimeListener() {
+            if (!auth || !auth.currentUser) return;
+            const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'inventory_items');
+            
+            onSnapshot(collectionRef, (snapshot) => {
+                inventory = [];
+                snapshot.forEach((docSnap) => {
+                    inventory.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+                renderTable();
+            }, (error) => {
+                console.error("Firestore snapshot error:", error);
+            });
+        }
+
+        function loadDefaultLocalData() {
+            inventory = [
+                { id: '1', name: "Teclado Mecánico RGB", category: "Accesorios", stock: 12, price: 45.00 },
+                { id: '2', name: "Mouse Inalámbrico", category: "Accesorios", stock: 3, price: 18.50 },
+                { id: '3', name: "Monitor Curvo 27\"", category: "Pantallas", stock: 2, price: 220.00 },
+                { id: '4', name: "Cable HDMI 2m", category: "Cables", stock: 25, price: 8.00 },
+                { id: '5', name: "Adaptador USB-C", category: "Accesorios", stock: 4, price: 12.00 }
+            ];
+            renderTable();
+        }
+
+        window.onload = function() {
+            initAuthAndData();
+        };
+
+        window.handleFormSubmit = async function(e) {
             e.preventDefault();
-            const index = parseInt(document.getElementById('editIndex').value);
+            const editId = document.getElementById('editId').value;
             const name = document.getElementById('itemName').value.trim();
             const category = document.getElementById('itemCategory').value.trim() || 'General';
             const stock = parseInt(document.getElementById('itemStock').value);
             const price = parseFloat(document.getElementById('itemPrice').value);
 
-            if (index === -1) {
-                inventory.push({ name, category, stock, price });
-            } else {
-                inventory[index] = { name, category, stock, price };
-                document.getElementById('editIndex').value = -1;
-                document.getElementById('formTitle').innerHTML = `
-                    <svg class="w-5 h-5 mr-2 text-indigo-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                    Registrar / Actualizar Artículo
-                `;
+            try {
+                if (!auth || !auth.currentUser) {
+                    if (!editId) {
+                        inventory.push({ id: Date.now().toString(), name, category, stock, price });
+                    } else {
+                        const index = inventory.findIndex(i => i.id === editId);
+                        if (index !== -1) inventory[index] = { id: editId, name, category, stock, price };
+                    }
+                    renderTable();
+                } else {
+                    const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'inventory_items');
+                    if (!editId) {
+                        await addDoc(collectionRef, { name, category, stock, price });
+                    } else {
+                        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'inventory_items', editId);
+                        await setDoc(docRef, { name, category, stock, price });
+                    }
+                }
+
+                resetForm();
+
+                if (stock < 5) {
+                    showModal("¡Stock Bajo Detectado!", `El artículo "${name}" cuenta actualmente con solo ${stock} unidad(es) disponible(s). Se recomienda reponer inventario inmediatamente.`);
+                }
+            } catch (err) {
+                console.error("Error saving item:", err);
             }
+        };
 
-            resetForm();
-            renderTable();
-
-            // Check if stock is low (< 5) and show alert modal
-            if (stock < 5) {
-                showModal("¡Stock Bajo Detectado!", `El artículo "${name}" cuenta actualmente con solo ${stock} unidad(es) disponible(s). Se recomienda reponer inventario inmediatamente.`);
-            }
-        }
-
-        function renderTable() {
+        window.renderTable = function() {
             const tbody = document.getElementById('tableBody');
             const emptyState = document.getElementById('emptyState');
             const searchFilter = document.getElementById('searchInput').value.toLowerCase();
@@ -241,12 +323,10 @@
                 if (item.stock < 5) criticalItems++;
             });
 
-            // Update stats
             document.getElementById('statTotal').innerText = totalItems;
             document.getElementById('statCritical').innerText = criticalItems;
             document.getElementById('statValue').innerText = `$${totalVal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-            // Update top alert badge
             const alertBadge = document.getElementById('alertBadge');
             const alertCount = document.getElementById('alertCount');
             if (criticalItems > 0) {
@@ -259,7 +339,6 @@
             }
 
             filtered.forEach((item) => {
-                const actualIndex = inventory.indexOf(item);
                 const isCritical = item.stock < 5;
                 const tr = document.createElement('tr');
                 tr.className = isCritical 
@@ -267,67 +346,77 @@
                     : 'hover:bg-zinc-900/60 transition border-l-2 border-l-transparent';
 
                 tr.innerHTML = `
-                    <td class="p-4 font-medium text-zinc-200 flex items-center">
-                        ${item.name}
-                        ${isCritical ? '<span class="ml-2.5 px-2 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold rounded-full uppercase tracking-wider">Stock Crítico</span>' : ''}
+                    <td class="p-4 sm:px-6 font-medium text-zinc-200 flex items-center flex-wrap gap-2">
+                        <span>${item.name}</span>
+                        ${isCritical ? '<span class="px-2 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold rounded-full uppercase tracking-wider">Stock Crítico</span>' : ''}
                     </td>
-                    <td class="p-4 text-zinc-400">${item.category}</td>
-                    <td class="p-4 text-center font-bold ${isCritical ? 'text-rose-400' : 'text-zinc-200'}">${item.stock}</td>
-                    <td class="p-4 text-right font-medium text-zinc-300">$${item.price.toFixed(2)}</td>
-                    <td class="p-4 text-center space-x-2">
-                        <button onclick="editItem(${actualIndex})" class="p-1.5 bg-zinc-900 hover:bg-indigo-500/20 hover:text-indigo-400 text-zinc-400 rounded-lg transition border border-zinc-800" title="Editar">
+                    <td class="p-4 sm:px-6 text-zinc-400">${item.category}</td>
+                    <td class="p-4 sm:px-6 text-center font-bold ${isCritical ? 'text-rose-400' : 'text-zinc-200'}">${item.stock}</td>
+                    <td class="p-4 sm:px-6 text-right font-medium text-zinc-300">$${item.price.toFixed(2)}</td>
+                    <td class="p-4 sm:px-6 text-center space-x-2">
+                        <button onclick="editItem('${item.id}')" class="p-2 bg-zinc-900 hover:bg-indigo-500/20 hover:text-indigo-400 text-zinc-400 rounded-lg transition border border-zinc-800" title="Editar">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                         </button>
-                        <button onclick="deleteItem(${actualIndex})" class="p-1.5 bg-zinc-900 hover:bg-rose-500/20 hover:text-rose-400 text-zinc-400 rounded-lg transition border border-zinc-800" title="Eliminar">
+                        <button onclick="deleteItem('${item.id}')" class="p-2 bg-zinc-900 hover:bg-rose-500/20 hover:text-rose-400 text-zinc-400 rounded-lg transition border border-zinc-800" title="Eliminar">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-        }
+        };
 
-        function editItem(index) {
-            const item = inventory[index];
-            document.getElementById('editIndex').value = index;
+        window.editItem = function(id) {
+            const item = inventory.find(i => i.id === id);
+            if (!item) return;
+            document.getElementById('editId').value = item.id;
             document.getElementById('itemName').value = item.name;
             document.getElementById('itemCategory').value = item.category;
             document.getElementById('itemStock').value = item.stock;
             document.getElementById('itemPrice').value = item.price;
             document.getElementById('formTitle').innerHTML = `
-                <svg class="w-5 h-5 mr-2 text-indigo-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                <svg class="w-5 h-5 mr-2 text-indigo-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 Editando Artículo
             `;
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }
+        };
 
-        function deleteItem(index) {
-            inventory.splice(index, 1);
-            renderTable();
-        }
+        window.deleteItem = async function(id) {
+            try {
+                if (!auth || !auth.currentUser) {
+                    inventory = inventory.filter(i => i.id !== id);
+                    renderTable();
+                } else {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'inventory_items', id);
+                    await deleteDoc(docRef);
+                }
+            } catch (err) {
+                console.error("Error deleting item:", err);
+            }
+        };
 
-        function resetForm() {
+        window.resetForm = function() {
             document.getElementById('stockForm').reset();
-            document.getElementById('editIndex').value = -1;
+            document.getElementById('editId').value = '';
             document.getElementById('formTitle').innerHTML = `
-                <svg class="w-5 h-5 mr-2 text-indigo-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                <svg class="w-5 h-5 mr-2 text-indigo-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 Registrar / Actualizar Artículo
             `;
-        }
+        };
 
-        function showModal(title, message) {
+        window.showModal = function(title, message) {
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalMessage').innerText = message;
             const modal = document.getElementById('modalContainer');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-        }
+        };
 
-        function closeModal() {
+        window.closeModal = function() {
             const modal = document.getElementById('modalContainer');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
-        }
+        };
     </script>
 </body>
 </html>

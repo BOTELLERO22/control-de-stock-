@@ -66,14 +66,14 @@
             </div>
 
             <!-- Header Controls & Indicators -->
-            <div class="flex items-center gap-2.5 flex-wrap">
-                <!-- Sync indicator -->
-                <div id="syncStatus" class="text-xs px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 flex items-center space-x-2">
-                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span class="font-medium text-[11px] sm:text-xs">Conectando...</span>
-                </div>
+        <div class="flex items-center gap-2.5 flex-wrap">
+            <!-- Sync indicator -->
+            <div id="syncStatus" class="text-xs px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="font-medium text-[11px] sm:text-xs">Base de Datos Guardada</span>
+            </div>
 
-                <!-- Low Stock Alert Banner Badge -->
+            <!-- Low Stock Alert Banner Badge -->
                 <button onclick="scrollToInventory('critical')" id="alertBadge" class="hidden bg-rose-950/40 hover:bg-rose-900/50 border border-rose-500/50 text-rose-300 text-xs font-medium px-3 py-1.5 rounded-full items-center transition shadow-lg shadow-rose-950/40 animate-pulse">
                     <svg class="w-4 h-4 mr-1.5 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -202,10 +202,16 @@
                         <h2 class="font-bold text-zinc-100 text-base sm:text-lg">Inventario de Productos</h2>
                         <p class="text-xs text-zinc-500">Listado de existencias y control de stock crítico</p>
                     </div>
-                    <div class="relative w-full sm:w-80">
-                        <input type="text" id="inventorySearch" oninput="renderInventoryTable()" placeholder="Buscar producto o categoría..." 
-                               class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-black border border-zinc-800 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <svg class="w-4 h-4 absolute left-3 top-3 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                        <button onclick="exportSQLModal()" class="w-full sm:w-auto px-4 py-2 bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-500/40 text-indigo-300 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-2 shrink-0">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            <span>Exportar Base de Datos (SQL)</span>
+                        </button>
+                        <div class="relative w-full sm:w-64">
+                            <input type="text" id="inventorySearch" oninput="renderInventoryTable()" placeholder="Buscar producto o categoría..." 
+                                   class="w-full pl-9 pr-4 py-2 rounded-xl bg-black border border-zinc-800 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <svg class="w-4 h-4 absolute left-3 top-2.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
                     </div>
                 </div>
 
@@ -231,7 +237,7 @@
                 </div>
             </div>
 
-            <!-- Form Section: Registrar / Actualizar Artículo (Located at the bottom as requested) -->
+            <!-- Form Section: Registrar / Actualizar Artículo -->
             <section id="formSection" class="bg-zinc-950 p-5 sm:p-6 rounded-2xl border border-zinc-800/80 shadow-2xl space-y-4">
                 <h2 id="formTitle" class="text-base sm:text-lg font-bold text-zinc-100 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
@@ -323,16 +329,18 @@
 
     <!-- Custom Modal for Alerts and Confirmations -->
     <div id="modalContainer" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-        <div class="bg-zinc-950 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-rose-500/40 space-y-4 mx-4">
-            <div class="flex items-center space-x-3 text-rose-400">
-                <div class="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div class="bg-zinc-950 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-zinc-800/80 space-y-4 mx-4">
+            <div class="flex items-center space-x-3 text-indigo-400">
+                <div id="modalIconContainer" class="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
-                <h3 id="modalTitle" class="text-base sm:text-lg font-bold text-zinc-100">¡Alerta de Stock Crítico!</h3>
+                <h3 id="modalTitle" class="text-base sm:text-lg font-bold text-zinc-100">Notificación</h3>
             </div>
-            <p id="modalMessage" class="text-zinc-300 text-sm leading-relaxed"></p>
+            <div id="modalBody" class="space-y-3">
+                <p id="modalMessage" class="text-zinc-300 text-sm leading-relaxed"></p>
+            </div>
             <div id="modalFooter" class="flex justify-end pt-2 space-x-2">
-                <button onclick="closeModal()" class="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-lg shadow-rose-950/50">
+                <button onclick="closeModal()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-lg shadow-indigo-950/50">
                     Entendido
                 </button>
             </div>
@@ -349,6 +357,66 @@
         let cart = [];
         let salesHistory = [];
         let selectedCategory = 'all';
+        let indexedDBInstance = null;
+
+        // Initialize IndexedDB SQL-like persistence locally
+        function initLocalDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open("MinimarketProDB", 2);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains("products")) {
+                        db.createObjectStore("products", { keyPath: "id" });
+                    }
+                    if (!db.objectStoreNames.contains("sales")) {
+                        db.createObjectStore("sales", { keyPath: "id" });
+                    }
+                };
+                request.onsuccess = (event) => {
+                    indexedDBInstance = event.target.result;
+                    resolve(indexedDBInstance);
+                };
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        async function saveLocalProducts(productsList) {
+            if (!indexedDBInstance) return;
+            const tx = indexedDBInstance.transaction("products", "readwrite");
+            const store = tx.objectStore("products");
+            await store.clear();
+            productsList.forEach(item => store.put(item));
+        }
+
+        async function loadLocalProducts() {
+            if (!indexedDBInstance) return [];
+            return new Promise((resolve) => {
+                const tx = indexedDBInstance.transaction("products", "readonly");
+                const store = tx.objectStore("products");
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => resolve([]);
+            });
+        }
+
+        async function saveLocalSales(salesList) {
+            if (!indexedDBInstance) return;
+            const tx = indexedDBInstance.transaction("sales", "readwrite");
+            const store = tx.objectStore("sales");
+            await store.clear();
+            salesList.forEach(sale => store.put(sale));
+        }
+
+        async function loadLocalSales() {
+            if (!indexedDBInstance) return [];
+            return new Promise((resolve) => {
+                const tx = indexedDBInstance.transaction("sales", "readonly");
+                const store = tx.objectStore("sales");
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => resolve([]);
+            });
+        }
 
         // Initialize Firebase safely with error handling
         try {
@@ -361,8 +429,9 @@
             console.warn("Firebase config not available or initialization failed:", e);
         }
 
-        // Authenticate & setup listeners
         async function initAuthAndData() {
+            await initLocalDatabase();
+
             try {
                 if (auth && app) {
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -372,24 +441,39 @@
                     }
                     
                     const syncStatus = document.getElementById('syncStatus');
-                    syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-emerald-400 font-medium text-[11px] sm:text-xs">Sincronizado en la Nube</span>';
+                    syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-emerald-400 font-medium text-[11px] sm:text-xs">Sincronizado en Nube & BD Local</span>';
                     
                     startRealtimeListeners();
                 } else {
-                    throw new Error("Firebase zero-config mode / fallback to local storage");
+                    throw new Error("Local Database mode");
                 }
             } catch (err) {
-                console.log("Operating in local mode:", err.message);
+                console.log("Operating with Local Persistent Database:", err.message);
                 const syncStatus = document.getElementById('syncStatus');
-                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span><span class="text-amber-400 font-medium text-[11px] sm:text-xs">Modo Local (Sin Nube)</span>';
-                loadDefaultLocalData();
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-emerald-400 font-medium text-[11px] sm:text-xs">BD Guardada Localmente</span>';
+                
+                // Load saved products from local database
+                inventory = await loadLocalProducts();
+                salesHistory = await loadLocalSales();
+
+                if (inventory.length === 0) {
+                    loadDefaultLocalData();
+                } else {
+                    updateUI();
+                    renderSalesHistory();
+                    calculateTodaySales();
+                }
             }
         }
 
         // Realtime sync for Inventory & Sales
         function startRealtimeListeners() {
             if (!auth || !auth.currentUser || typeof appId === 'undefined') {
-                loadDefaultLocalData();
+                loadLocalProducts().then(cached => {
+                    inventory = cached.length > 0 ? cached : [];
+                    if (inventory.length === 0) loadDefaultLocalData();
+                    else updateUI();
+                });
                 return;
             }
 
@@ -400,10 +484,14 @@
                 snapshot.forEach((docSnap) => {
                     inventory.push({ id: docSnap.id, ...docSnap.data() });
                 });
+                saveLocalProducts(inventory); // Keep synced locally too
                 updateUI();
             }, (error) => {
                 console.error("Inventory snapshot error:", error);
-                if (inventory.length === 0) loadDefaultLocalData();
+                loadLocalProducts().then(cached => {
+                    inventory = cached;
+                    updateUI();
+                });
             });
 
             // Sales listener
@@ -413,6 +501,7 @@
                 snapshot.forEach((docSnap) => {
                     salesHistory.push({ id: docSnap.id, ...docSnap.data() });
                 });
+                saveLocalSales(salesHistory);
                 renderSalesHistory();
                 calculateTodaySales();
             }, (error) => console.error("Sales snapshot error:", error));
@@ -426,6 +515,7 @@
                 { id: '4', code: '779004', name: "Pan de Molde 500g", category: "Panadería", stock: 15, price: 2.00 },
                 { id: '5', code: '779005', name: "Agua Mineral 500ml", category: "Bebidas", stock: 4, price: 0.80 }
             ];
+            saveLocalProducts(inventory);
             updateUI();
         }
 
@@ -657,6 +747,8 @@
                     }
                 }
 
+                await saveLocalProducts(inventory);
+
                 // Record Sale
                 const newSale = {
                     date: saleDate.toISOString(),
@@ -667,6 +759,7 @@
                 let generatedSaleId = Date.now().toString();
                 if (!auth || !auth.currentUser) {
                     salesHistory.push({ id: generatedSaleId, ...newSale });
+                    await saveLocalSales(salesHistory);
                     renderSalesHistory();
                     calculateTodaySales();
                 } else {
@@ -829,6 +922,7 @@
                         const idx = inventory.findIndex(i => i.id === editId);
                         if (idx !== -1) inventory[idx] = { id: editId, ...payload };
                     }
+                    await saveLocalProducts(inventory);
                     updateUI();
                 } else {
                     const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'minimarket_inventory');
@@ -850,29 +944,11 @@
             }
         };
 
-        window.editItem = function(id) {
-            const item = inventory.find(i => i.id === id);
-            if (!item) return;
-
-            document.getElementById('editId').value = item.id;
-            document.getElementById('itemCode').value = item.code || '';
-            document.getElementById('itemName').value = item.name;
-            document.getElementById('itemCategory').value = item.category || '';
-            document.getElementById('itemStock').value = item.stock;
-            document.getElementById('itemPrice').value = item.price;
-
-            document.getElementById('formTitle').innerHTML = `
-                <svg class="w-5 h-5 mr-2 text-indigo-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                Editando Artículo
-            `;
-
-            document.getElementById('formSection').scrollIntoView({ behavior: 'smooth' });
-        };
-
         window.deleteItem = async function(id) {
             try {
                 if (!auth || !auth.currentUser) {
                     inventory = inventory.filter(i => i.id !== id);
+                    await saveLocalProducts(inventory);
                     updateUI();
                 } else {
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'minimarket_inventory', id);
@@ -890,6 +966,87 @@
                 <svg class="w-5 h-5 mr-2 text-indigo-400 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 Registrar / Actualizar Artículo
             `;
+        };
+
+        // EXPORT TO SQL FEATURE
+        window.generateSQLScript = function() {
+            let sql = `-- Script SQL de Base de Datos - Minimarket Pro\n`;
+            sql += `-- Generado automáticamente: ${new Date().toLocaleString()}\n\n`;
+            
+            sql += `CREATE TABLE IF NOT EXISTS productos (\n`;
+            sql += `    id VARCHAR(50) PRIMARY KEY,\n`;
+            sql += `    codigo VARCHAR(50),\n`;
+            sql += `    nombre VARCHAR(255) NOT NULL,\n`;
+            sql += `    categoria VARCHAR(100),\n`;
+            sql += `    stock INT NOT NULL DEFAULT 0,\n`;
+            sql += `    precio DECIMAL(10, 2) NOT NULL DEFAULT 0.00\n`;
+            sql += `);\n\n`;
+
+            if (inventory.length === 0) {
+                sql += `-- No hay productos actualmente en el inventario.`;
+            } else {
+                sql += `INSERT INTO productos (id, codigo, nombre, categoria, stock, precio) VALUES\n`;
+                const values = inventory.map(item => {
+                    const safeId = (item.id || '').replace(/'/g, "''");
+                    const safeCode = (item.code || '').replace(/'/g, "''");
+                    const safeName = (item.name || '').replace(/'/g, "''");
+                    const safeCategory = (item.category || 'General').replace(/'/g, "''");
+                    const stockVal = parseInt(item.stock) || 0;
+                    const priceVal = parseFloat(item.price) || 0;
+                    return `('${safeId}', '${safeCode}', '${safeName}', '${safeCategory}', ${stockVal}, ${priceVal.toFixed(2)})`;
+                });
+                sql += values.join(',\n') + ';\n';
+            }
+
+            return sql;
+        };
+
+        window.exportSQLModal = function() {
+            const sqlContent = generateSQLScript();
+            
+            document.getElementById('modalTitle').innerText = "Base de Datos SQL (Exportación)";
+            document.getElementById('modalBody').innerHTML = `
+                <p class="text-zinc-300 text-xs">Copia o descarga la sentencia SQL para importar estos productos en tu servidor MySQL, SQLite o PostgreSQL:</p>
+                <textarea id="sqlTextArea" readonly class="w-full h-48 bg-black border border-zinc-800 rounded-xl p-3 font-mono text-xs text-indigo-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 overflow-y-auto resize-none">${sqlContent}</textarea>
+            `;
+
+            document.getElementById('modalFooter').innerHTML = `
+                <button onclick="copySQLText()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-4 py-2 rounded-xl text-xs font-semibold transition">
+                    Copiar SQL
+                </button>
+                <button onclick="downloadSQLFile()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-lg shadow-indigo-950/50">
+                    Descargar Archivo .sql
+                </button>
+                <button onclick="closeModal()" class="bg-zinc-900 text-zinc-400 hover:text-white px-3 py-2 rounded-xl text-xs transition">
+                    Cerrar
+                </button>
+            `;
+
+            const modal = document.getElementById('modalContainer');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.copySQLText = function() {
+            const textarea = document.getElementById('sqlTextArea');
+            if (textarea) {
+                textarea.select();
+                document.execCommand('copy');
+                alert(" Script SQL copiado al portapapeles.");
+            }
+        };
+
+        window.downloadSQLFile = function() {
+            const sqlContent = generateSQLScript();
+            const blob = new Blob([sqlContent], { type: 'text/plain;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `minimarket_inventario_${Date.now()}.sql`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         };
 
         // SALES HISTORY & TODAY STATS
@@ -966,7 +1123,7 @@
         // MODAL HELPERS
         window.showModal = function(title, message) {
             document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('modalBody').innerHTML = `<p id="modalMessage" class="text-zinc-300 text-sm leading-relaxed">${message}</p>`;
             document.getElementById('modalFooter').innerHTML = `
                 <button onclick="closeModal()" class="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition shadow-lg shadow-rose-950/50">
                     Entendido
@@ -979,7 +1136,7 @@
 
         window.showConfirmModal = function(title, message, onConfirm) {
             document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('modalBody').innerHTML = `<p id="modalMessage" class="text-zinc-300 text-sm leading-relaxed">${message}</p>`;
             
             const footer = document.getElementById('modalFooter');
             footer.innerHTML = `

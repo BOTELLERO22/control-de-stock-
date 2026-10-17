@@ -432,6 +432,18 @@
         async function initAuthAndData() {
             await initLocalDatabase();
 
+            // First load local database products so no refresh loses data
+            const localProducts = await loadLocalProducts();
+            const localSales = await loadLocalSales();
+
+            if (localProducts.length > 0) {
+                inventory = localProducts;
+                salesHistory = localSales;
+                updateUI();
+                renderSalesHistory();
+                calculateTodaySales();
+            }
+
             try {
                 if (auth && app) {
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -441,21 +453,17 @@
                     }
                     
                     const syncStatus = document.getElementById('syncStatus');
-                    syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-emerald-400 font-medium text-[11px] sm:text-xs">Sincronizado en Nube & BD Local</span>';
+                    syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-emerald-400 font-medium text-[11px] sm:text-xs">Base de Datos Guardada Local & Nube</span>';
                     
                     startRealtimeListeners();
                 } else {
-                    throw new Error("Local Database mode");
+                    throw new Error("Modo Base de Datos Local");
                 }
             } catch (err) {
-                console.log("Operating with Local Persistent Database:", err.message);
+                console.log("Operando con Base de Datos Local Persistente:", err.message);
                 const syncStatus = document.getElementById('syncStatus');
-                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-emerald-400 font-medium text-[11px] sm:text-xs">BD Guardada Localmente</span>';
+                syncStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-emerald-400 font-medium text-[11px] sm:text-xs">Base de Datos Guardada Localmente</span>';
                 
-                // Load saved products from local database
-                inventory = await loadLocalProducts();
-                salesHistory = await loadLocalSales();
-
                 if (inventory.length === 0) {
                     loadDefaultLocalData();
                 } else {
@@ -484,7 +492,7 @@
                 snapshot.forEach((docSnap) => {
                     inventory.push({ id: docSnap.id, ...docSnap.data() });
                 });
-                saveLocalProducts(inventory); // Keep synced locally too
+                saveLocalProducts(inventory); // Keep saved in local IndexedDB
                 updateUI();
             }, (error) => {
                 console.error("Inventory snapshot error:", error);

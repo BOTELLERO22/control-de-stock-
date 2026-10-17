@@ -624,6 +624,7 @@
 
             const saleTotal = cart.reduce((sum, item) => sum + (item.qty * item.price), 0);
             const saleItems = cart.map(item => ({ name: item.name, qty: item.qty, price: item.price }));
+            const saleDate = new Date();
 
             try {
                 // Deduct stock for each item
@@ -646,19 +647,29 @@
 
                 // Record Sale
                 const newSale = {
-                    date: new Date().toISOString(),
+                    date: saleDate.toISOString(),
                     items: saleItems,
                     total: saleTotal
                 };
 
+                let generatedSaleId = Date.now().toString();
                 if (!auth || !auth.currentUser) {
-                    salesHistory.push({ id: Date.now().toString(), ...newSale });
+                    salesHistory.push({ id: generatedSaleId, ...newSale });
                     renderSalesHistory();
                     calculateTodaySales();
                 } else {
                     const salesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'minimarket_sales');
-                    await addDoc(salesColRef, newSale);
+                    const docRef = await addDoc(salesColRef, newSale);
+                    generatedSaleId = docRef.id;
                 }
+
+                // Trigger Print Receipt dialog
+                printReceipt({
+                    id: generatedSaleId,
+                    date: saleDate,
+                    items: saleItems,
+                    total: saleTotal
+                });
 
                 clearCart();
                 updateUI();
@@ -666,6 +677,75 @@
                 console.error("Checkout error:", err);
             }
         };
+
+        // PRINT TICKET RECEIPT FUNCTION
+        function printReceipt(sale) {
+            const dateStr = sale.date.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'medium' });
+            const itemsHtml = sale.items.map(i => `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span>${i.qty}x ${i.name}</span>
+                    <span>$${(i.qty * i.price).toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            const printWindow = window.open('', '_blank', 'width=350,height=600');
+            if (!printWindow) {
+                showModal("Bloqueo de Ventanas", "Por favor permita las ventanas emergentes (pop-ups) en su navegador para imprimir el ticket.");
+                return;
+            }
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Ticket de Venta #${sale.id.slice(-6)}</title>
+                    <style>
+                        body {
+                            font-family: 'Courier New', Courier, monospace;
+                            width: 280px;
+                            margin: 0 auto;
+                            padding: 10px;
+                            color: #000;
+                            background: #fff;
+                            font-size: 12px;
+                        }
+                        .center { text-align: center; }
+                        .bold { font-weight: bold; }
+                        .line { border-bottom: 1px dashed #000; margin: 8px 0; }
+                        .flex { display: flex; justify-content: space-between; }
+                    </style>
+                </head>
+                <body>
+                    <div class="center bold" style="font-size: 16px;">MINIMARKET PRO</div>
+                    <div class="center" style="font-size: 10px;">Sistema de Punto de Venta</div>
+                    <div class="line"></div>
+                    <div><strong>Fecha:</strong> ${dateStr}</div>
+                    <div><strong>Ticket:</strong> #${sale.id.slice(-6)}</div>
+                    <div class="line"></div>
+                    <div class="bold" style="margin-bottom: 6px;">DETALLE DE COMPRA:</div>
+                    ${itemsHtml}
+                    <div class="line"></div>
+                    <div class="flex bold" style="font-size: 14px; margin-top: 6px;">
+                        <span>TOTAL:</span>
+                        <span>$${sale.total.toFixed(2)}</span>
+                    </div>
+                    <div class="line"></div>
+                    <div class="center" style="margin-top: 15px; font-size: 11px;">
+                        ¡Gracias por su compra!<br>
+                        Vuelva pronto
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            window.close();
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
 
         // INVENTORY TABLE & FORM LOGIC
         window.renderInventoryTable = function() {

@@ -879,11 +879,19 @@
 
         window.deleteItem = async function(id) {
             try {
-                await dbDelete('products', id);
+                // 1. Filtrar el array en memoria
                 inventory = inventory.filter(i => i.id !== id);
+                
+                // 2. Sincronizar en LocalStorage inmediatamente
+                saveToLocalStorage();
+                
+                // 3. Eliminar de IndexedDB si la base de datos está disponible
+                await dbDelete('products', id);
+
+                // 4. Actualizar la interfaz de usuario
                 updateUI();
             } catch (err) {
-                console.error("Error deleting item:", err);
+                console.error("Error al eliminar el producto:", err);
             }
         };
 

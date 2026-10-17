@@ -67,9 +67,9 @@
             <!-- Header Controls & Indicators -->
             <div class="flex items-center gap-2.5 flex-wrap">
                 <!-- Sync status indicator -->
-                <div id="syncStatus" class="text-xs px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 flex items-center space-x-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span class="font-medium text-[11px] sm:text-xs">Base de Datos Local Persistente</span>
+                <div id="syncStatus" class="text-xs px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-emerald-400 flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="font-medium text-[11px] sm:text-xs" id="statusText">Guardado Automático Activo</span>
                 </div>
 
                 <!-- Low Stock Alert Banner Badge -->
@@ -347,7 +347,7 @@
     </div>
 
     <script>
-        // INDEXEDDB DATABASE CONTROLLER (Persistent Storage Engine)
+        // DUAL STORAGE ENGINE (IndexedDB + LocalStorage Fallback)
         const DB_NAME = 'MinimarketProDB';
         const DB_VERSION = 1;
         let dbInstance = null;
@@ -357,96 +357,133 @@
         let salesHistory = [];
         let selectedCategory = 'all';
 
+        // LocalStorage Fallback Helpers
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('minimarket_inventory', JSON.stringify(inventory));
+                localStorage.setItem('minimarket_sales', JSON.stringify(salesHistory));
+            } catch (e) {
+                console.warn("Error guardando en LocalStorage:", e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const storedInv = localStorage.getItem('minimarket_inventory');
+                const storedSales = localStorage.getItem('minimarket_sales');
+                if (storedInv) inventory = JSON.parse(storedInv);
+                if (storedSales) salesHistory = JSON.parse(storedSales);
+            } catch (e) {
+                console.warn("Error leyendo de LocalStorage:", e);
+            }
+        }
+
         function openDatabase() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
+            return new Promise((resolve) => {
+                try {
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains('products')) {
-                        db.createObjectStore('products', { keyPath: 'id' });
-                    }
-                    if (!db.objectStoreNames.contains('sales')) {
-                        db.createObjectStore('sales', { keyPath: 'id' });
-                    }
-                };
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains('products')) {
+                            db.createObjectStore('products', { keyPath: 'id' });
+                        }
+                        if (!db.objectStoreNames.contains('sales')) {
+                            db.createObjectStore('sales', { keyPath: 'id' });
+                        }
+                    };
 
-                request.onsuccess = (event) => {
-                    dbInstance = event.target.result;
-                    resolve(dbInstance);
-                };
+                    request.onsuccess = (event) => {
+                        dbInstance = event.target.result;
+                        resolve(dbInstance);
+                    };
 
-                request.onerror = (event) => {
-                    console.error("IndexedDB error:", event.target.errorCode);
-                    reject(event.target.errorCode);
-                };
+                    request.onerror = (event) => {
+                        console.warn("IndexedDB no disponible, usando almacenamiento local de respaldo:", event);
+                        resolve(null);
+                    };
+                } catch (e) {
+                    console.warn("Excepción al abrir IndexedDB, usando respaldo:", e);
+                    resolve(null);
+                }
             });
         }
 
         async function dbGetAll(storeName) {
             return new Promise((resolve) => {
-                if (!dbInstance) return resolve([]);
-                const tx = dbInstance.transaction(storeName, 'readonly');
-                const store = tx.objectStore(storeName);
-                const req = store.getAll();
-                req.onsuccess = () => resolve(req.result || []);
-                req.onerror = () => resolve([]);
+                if (!dbInstance) return resolve(null);
+                try {
+                    const tx = dbInstance.transaction(storeName, 'readonly');
+                    const store = tx.objectStore(storeName);
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => resolve(null);
+                } catch (e) {
+                    resolve(null);
+                }
             });
         }
 
         async function dbPut(storeName, item) {
-            return new Promise((resolve, reject) => {
-                if (!dbInstance) return reject("No DB instance");
+            saveToLocalStorage(); // Guardado inmediato en la capa de respaldo
+            if (!dbInstance) return;
+            try {
                 const tx = dbInstance.transaction(storeName, 'readwrite');
                 const store = tx.objectStore(storeName);
-                const req = store.put(item);
-                req.onsuccess = () => resolve();
-                req.onerror = (e) => reject(e);
-            });
+                store.put(item);
+            } catch (e) {
+                console.warn("Error escribiendo en IndexedDB:", e);
+            }
         }
 
         async function dbDelete(storeName, id) {
-            return new Promise((resolve, reject) => {
-                if (!dbInstance) return reject("No DB instance");
+            saveToLocalStorage(); // Guardado inmediato en la capa de respaldo
+            if (!dbInstance) return;
+            try {
                 const tx = dbInstance.transaction(storeName, 'readwrite');
                 const store = tx.objectStore(storeName);
-                const req = store.delete(id);
-                req.onsuccess = () => resolve();
-                req.onerror = (e) => reject(e);
-            });
+                store.delete(id);
+            } catch (e) {
+                console.warn("Error eliminando en IndexedDB:", e);
+            }
         }
 
         async function dbClearStore(storeName) {
-            return new Promise((resolve, reject) => {
-                if (!dbInstance) return reject("No DB instance");
+            saveToLocalStorage();
+            if (!dbInstance) return;
+            try {
                 const tx = dbInstance.transaction(storeName, 'readwrite');
                 const store = tx.objectStore(storeName);
-                const req = store.clear();
-                req.onsuccess = () => resolve();
-                req.onerror = (e) => reject(e);
-            });
+                store.clear();
+            } catch (e) {
+                console.warn("Error limpiando store en IndexedDB:", e);
+            }
         }
 
         // INIT APPLICATION
         window.onload = async function() {
+            // Cargar primero de respaldo por seguridad
+            loadFromLocalStorage();
+
             try {
                 await openDatabase();
-                await loadAllDataFromDB();
+                if (dbInstance) {
+                    const dbInv = await dbGetAll('products');
+                    const dbSales = await dbGetAll('sales');
+
+                    if (dbInv && dbInv.length > 0) inventory = dbInv;
+                    if (dbSales && dbSales.length > 0) salesHistory = dbSales;
+                }
             } catch (err) {
-                console.error("Failed initializing Database:", err);
+                console.error("Error inicializando base de datos:", err);
             }
-        };
 
-        async function loadAllDataFromDB() {
-            inventory = await dbGetAll('products');
-            
-            // Inventory starts completely empty by default
-            salesHistory = await dbGetAll('sales');
-
+            // Sincronizar y renderizar UI
+            saveToLocalStorage();
             updateUI();
             renderSalesHistory();
             calculateTodaySales();
-        }
+        };
 
         // TABS SWITCHING
         window.switchTab = function(tab) {
@@ -753,9 +790,6 @@
             const productData = { id: productId, code, name, category, stock, price };
 
             try {
-                // Persistent Write to IndexedDB
-                await dbPut('products', productData);
-
                 if (editId) {
                     const idx = inventory.findIndex(i => i.id === editId);
                     if (idx !== -1) inventory[idx] = productData;
@@ -763,11 +797,14 @@
                     inventory.push(productData);
                 }
 
+                // Guardar en ambas capas de almacenamiento
+                await dbPut('products', productData);
+
                 resetForm();
                 updateUI();
-                showModal("Éxito", `El producto "${name}" ha sido guardado permanentemente en la base de datos.`);
+                showModal("¡Producto Guardado!", `El producto "${name}" se ha guardado correctamente y estará disponible siempre que abras la app.`);
             } catch (err) {
-                console.error("Error persistent writing product:", err);
+                console.error("Error guardando producto:", err);
             }
         };
 

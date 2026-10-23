@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Minimarket Pro - Control de Stock & Punto de Venta</title>
+    <title>Minimarket Cáscara Colorada - Control de Stock & Punto de Venta</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -60,7 +60,7 @@
                     <h1 class="text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
                         Minimarket Cáscara Colorada
                     </h1>
-                    <p class="text-[11px] text-zinc-500 font-medium">Gestión integral con Base de Datos Persistente</p>
+                    <p class="text-[11px] text-zinc-500 font-medium">Gestión integral con Precios por Menor / Mayor y Base de Datos Persistente</p>
                 </div>
             </div>
 
@@ -136,7 +136,7 @@
             <div class="lg:col-span-2 space-y-4">
                 <div class="bg-zinc-950 p-4 sm:p-5 rounded-2xl border border-zinc-800/80 shadow-2xl space-y-4">
                     
-                    <!-- Modern Scale Live Indicator Bar & Digital Dashboard -->
+                    <!-- Digital Scale Dashboard Indicator -->
                     <div class="bg-gradient-to-r from-zinc-950 via-black to-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-inner space-y-3 relative overflow-hidden">
                         <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
                         
@@ -250,7 +250,7 @@
                 <div class="p-4 sm:p-5 border-b border-zinc-800 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                     <div>
                         <h2 class="font-bold text-zinc-100 text-base sm:text-lg">Inventario de Productos</h2>
-                        <p class="text-xs text-zinc-500">Almacenamiento persistente en base de datos local</p>
+                        <p class="text-xs text-zinc-500">Almacenamiento persistente con Precios por Menor y Mayor</p>
                     </div>
                     <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                         <button onclick="exportSQLModal()" class="w-full sm:w-auto px-4 py-2 bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-500/40 text-indigo-300 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-2 shrink-0">
@@ -266,14 +266,15 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[650px]">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
                         <thead>
                             <tr class="bg-black text-zinc-400 text-[11px] uppercase tracking-wider font-semibold border-b border-zinc-800">
                                 <th class="p-4">Código</th>
                                 <th class="p-4">Artículo</th>
                                 <th class="p-4">Categoría</th>
                                 <th class="p-4 text-center">Stock Actual</th>
-                                <th class="p-4 text-right">Precio ($)</th>
+                                <th class="p-4 text-right">Precio Menor</th>
+                                <th class="p-4 text-right">Precio Mayor</th>
                                 <th class="p-4 text-center">Acciones</th>
                             </tr>
                         </thead>
@@ -314,16 +315,27 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Pricing & Stock Fields -->
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Stock Inicial / Actual</label>
                             <input type="number" id="itemStock" required min="0" step="any" placeholder="0" 
                                    class="w-full px-4 py-2.5 rounded-xl bg-black border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-100 placeholder-zinc-600 text-sm">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Precio de Venta ($)</label>
+                            <label class="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Precio por Menor ($)</label>
                             <input type="number" id="itemPrice" required step="0.01" min="0" placeholder="0.00" 
                                    class="w-full px-4 py-2.5 rounded-xl bg-black border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-100 placeholder-zinc-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-indigo-400 uppercase tracking-wider mb-1.5">Precio por Mayor ($)</label>
+                            <input type="number" id="itemWholesalePrice" step="0.01" min="0" placeholder="Opcional (Ej. 850.00)" 
+                                   class="w-full px-4 py-2.5 rounded-xl bg-black border border-indigo-900/60 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-indigo-200 placeholder-zinc-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-indigo-400 uppercase tracking-wider mb-1.5">Mínimo para Mayorista</label>
+                            <input type="number" id="itemWholesaleMin" step="any" min="1" placeholder="Ej. 6 u. o 5.0 kg" 
+                                   class="w-full px-4 py-2.5 rounded-xl bg-black border border-indigo-900/60 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-indigo-200 placeholder-zinc-600 text-sm">
                         </div>
                     </div>
 
@@ -416,13 +428,14 @@
         let salesHistory = [];
         let selectedCategory = 'all';
 
-        // BALANZA SERIAL REAL / SIMULADA & MODERN UI LOGIC
+        // BALANZA SERIAL REAL
         let activePort = null;
         let serialReader = null;
         let currentWeight = 0.000;
         let targetWeight = 0.000;
         let isScaleConnected = false;
         let weightAnimationInterval = null;
+        let activeWeightedProductId = null;
 
         // Initialize App & Storage
         window.onload = async function() {
@@ -665,10 +678,11 @@
             grid.innerHTML = filtered.map(item => {
                 const isOutOfStock = item.stock <= 0;
                 const stockText = item.isWeighted ? `${item.stock.toFixed(3)} kg` : `${item.stock} u.`;
+                const hasWholesale = item.wholesalePrice && item.wholesaleMin > 0;
                 
                 return `
                     <button onclick="addToCart('${item.id}')" ${isOutOfStock ? 'disabled' : ''} 
-                            class="p-3 bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800/80 rounded-xl text-left transition flex flex-col justify-between h-28 relative overflow-hidden group disabled:opacity-40 disabled:cursor-not-allowed">
+                            class="p-3 bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800/80 rounded-xl text-left transition flex flex-col justify-between min-h-[120px] relative overflow-hidden group disabled:opacity-40 disabled:cursor-not-allowed">
                         <div>
                             <div class="flex justify-between items-start gap-1">
                                 <h3 class="font-bold text-zinc-200 text-xs truncate group-hover:text-indigo-400 transition">${item.name}</h3>
@@ -676,9 +690,17 @@
                             </div>
                             <p class="text-[10px] text-zinc-500 truncate mt-0.5">${item.category || 'General'}</p>
                         </div>
-                        <div class="flex justify-between items-end border-t border-zinc-800/50 pt-2 mt-2">
-                            <span class="text-xs font-bold text-emerald-400">$${parseFloat(item.price).toFixed(2)}${item.isWeighted ? '/kg' : ''}</span>
-                            <span class="text-[10px] font-medium text-zinc-400">${stockText}</span>
+
+                        <div class="space-y-1 mt-2">
+                            ${hasWholesale ? `
+                                <div class="text-[10px] text-indigo-400 font-medium">
+                                    Mayor: <strong class="text-indigo-300">$${parseFloat(item.wholesalePrice).toFixed(2)}</strong> (+${item.wholesaleMin}${item.isWeighted ? 'kg' : 'u'})
+                                </div>
+                            ` : ''}
+                            <div class="flex justify-between items-end border-t border-zinc-800/50 pt-1.5">
+                                <span class="text-xs font-bold text-emerald-400">$${parseFloat(item.price).toFixed(2)}${item.isWeighted ? '/kg' : ''}</span>
+                                <span class="text-[10px] font-medium text-zinc-400">${stockText}</span>
+                            </div>
                         </div>
                     </button>
                 `;
@@ -792,7 +814,7 @@
                     currentWeight = targetWeight;
                     clearInterval(weightAnimationInterval);
                     updateScaleDisplay();
-                    syncActiveWeightedCartItem(); // Sincronizar automáticamente con el carrito cuando el peso sea estable
+                    syncActiveWeightedCartItem();
                     if (badge) {
                         badge.className = "px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full flex items-center gap-1";
                         badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> ESTABLE`;
@@ -801,13 +823,10 @@
                 } else {
                     currentWeight += diff * 0.25;
                     updateScaleDisplay();
-                    syncActiveWeightedCartItem(); // Sincronizar dinámicamente durante la lectura
+                    syncActiveWeightedCartItem();
                 }
             }, 30);
         }
-
-        // Sincronización en tiempo real del peso con el artículo pesable seleccionado en el carrito
-        let activeWeightedProductId = null;
 
         function syncActiveWeightedCartItem() {
             if (!activeWeightedProductId) return;
@@ -818,7 +837,6 @@
             }
 
             if (currentWeight <= 0) {
-                // Si la balanza vuelve a cero, remover o dejar en 0
                 item.qty = 0;
                 cart = cart.filter(c => c.id !== activeWeightedProductId);
                 activeWeightedProductId = null;
@@ -838,7 +856,6 @@
             if (!product || product.stock <= 0) return;
 
             if (product.isWeighted) {
-                // Producto pesable: marcar como activo y vincular a la balanza
                 activeWeightedProductId = productId;
                 
                 if (currentWeight <= 0) {
@@ -855,7 +872,6 @@
                     cart.push({ ...product, qty: assignedWeight });
                 }
             } else {
-                // Producto por unidad
                 const existing = cart.find(c => c.id === productId);
                 if (existing) {
                     if (existing.qty < product.stock) {
@@ -882,6 +898,13 @@
             renderCart();
         };
 
+        function getCurrentPriceForItem(item) {
+            if (item.wholesalePrice && item.wholesaleMin > 0 && item.qty >= item.wholesaleMin) {
+                return item.wholesalePrice;
+            }
+            return item.price;
+        }
+
         function renderCart() {
             const container = document.getElementById('cartItemsList');
             const checkoutBtn = document.getElementById('checkoutBtn');
@@ -896,7 +919,9 @@
 
             let total = 0;
             container.innerHTML = cart.map(item => {
-                const itemTotal = item.qty * item.price;
+                const activePrice = getCurrentPriceForItem(item);
+                const isWholesaleApplied = item.wholesalePrice && item.wholesaleMin > 0 && item.qty >= item.wholesaleMin;
+                const itemTotal = item.qty * activePrice;
                 total += itemTotal;
                 const isSyncingWithScale = item.isWeighted && activeWeightedProductId === item.id;
                 const qtyText = item.isWeighted ? `${item.qty.toFixed(3)} kg` : item.qty;
@@ -905,11 +930,15 @@
                     <div onclick="${item.isWeighted ? `selectWeightedCartItem('${item.id}')` : ''}" 
                          class="py-2.5 px-2 rounded-xl transition ${isSyncingWithScale ? 'bg-indigo-950/40 border border-indigo-500/40' : 'hover:bg-zinc-900/40'} flex justify-between items-center text-xs cursor-pointer">
                         <div class="min-w-0 flex-1 pr-2">
-                            <div class="flex items-center space-x-1.5">
+                            <div class="flex items-center space-x-1.5 flex-wrap">
                                 <p class="font-semibold text-zinc-200 truncate">${item.name}</p>
-                                ${isSyncingWithScale ? '<span class="px-1.5 py-0.2 text-[9px] bg-emerald-500/20 text-emerald-300 font-semibold rounded-full border border-emerald-500/30 animate-pulse">Sincronizado con Balanza</span>' : ''}
+                                ${isSyncingWithScale ? '<span class="px-1.5 py-0.2 text-[9px] bg-emerald-500/20 text-emerald-300 font-semibold rounded-full border border-emerald-500/30 animate-pulse">Sincronizado</span>' : ''}
+                                ${isWholesaleApplied ? '<span class="px-1.5 py-0.2 text-[9px] bg-indigo-500/20 text-indigo-300 font-bold rounded border border-indigo-500/40">P. Mayorista</span>' : ''}
                             </div>
-                            <p class="text-zinc-500">$${item.price.toFixed(2)} ${item.isWeighted ? '/kg' : 'c/u'}</p>
+                            <p class="text-zinc-500">
+                                $${activePrice.toFixed(2)} ${item.isWeighted ? '/kg' : 'c/u'} 
+                                ${isWholesaleApplied ? `<span class="line-through text-zinc-600">($${item.price.toFixed(2)})</span>` : ''}
+                            </p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <div class="flex items-center space-x-1 bg-black border border-zinc-800 rounded-lg p-0.5">
@@ -931,13 +960,18 @@
         window.processCheckout = async function() {
             if (cart.length === 0) return;
 
-            const saleTotal = cart.reduce((sum, item) => sum + (item.qty * item.price), 0);
-            const saleItems = cart.map(item => ({ 
-                name: item.name, 
-                qty: item.qty, 
-                price: item.price,
-                isWeighted: !!item.isWeighted
-            }));
+            let saleTotal = 0;
+            const saleItems = cart.map(item => {
+                const activePrice = getCurrentPriceForItem(item);
+                saleTotal += item.qty * activePrice;
+                return { 
+                    name: item.name, 
+                    qty: item.qty, 
+                    price: activePrice,
+                    isWeighted: !!item.isWeighted,
+                    isWholesale: activePrice === item.wholesalePrice
+                };
+            });
             const saleDate = new Date();
 
             try {
@@ -983,7 +1017,7 @@
                 const qtyFormatted = i.isWeighted ? `${i.qty.toFixed(3)}kg` : `${i.qty}x`;
                 return `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span>${qtyFormatted} ${i.name}</span>
+                    <span>${qtyFormatted} ${i.name} ${i.isWholesale ? '(May)' : ''}</span>
                     <span>$${(i.qty * i.price).toFixed(2)}</span>
                 </div>
             `}).join('');
@@ -1030,7 +1064,7 @@
             printWindow.document.close();
         }
 
-        // FORM SUBMIT - SAVES OR UPDATES PRODUCTS IN INDEXEDDB
+        // FORM SUBMIT - SAVES OR UPDATES PRODUCTS IN DATABASE
         window.handleFormSubmit = async function(e) {
             e.preventDefault();
             const editId = document.getElementById('editId').value;
@@ -1039,10 +1073,26 @@
             const category = document.getElementById('itemCategory').value.trim() || 'General';
             const stock = parseFloat(document.getElementById('itemStock').value);
             const price = parseFloat(document.getElementById('itemPrice').value);
+            
+            const wholesalePriceVal = document.getElementById('itemWholesalePrice').value;
+            const wholesaleMinVal = document.getElementById('itemWholesaleMin').value;
+            const wholesalePrice = wholesalePriceVal !== '' ? parseFloat(wholesalePriceVal) : null;
+            const wholesaleMin = wholesaleMinVal !== '' ? parseFloat(wholesaleMinVal) : null;
+
             const isWeighted = document.getElementById('itemIsWeighted').checked;
 
             const productId = editId || Date.now().toString();
-            const productData = { id: productId, code, name, category, stock, price, isWeighted };
+            const productData = { 
+                id: productId, 
+                code, 
+                name, 
+                category, 
+                stock, 
+                price, 
+                wholesalePrice, 
+                wholesaleMin, 
+                isWeighted 
+            };
 
             try {
                 if (editId) {
@@ -1052,12 +1102,11 @@
                     inventory.push(productData);
                 }
 
-                // Guardar en ambas capas de almacenamiento
                 await dbPut('products', productData);
 
                 resetForm();
                 updateUI();
-                showModal("¡Producto Guardado!", `El producto "${name}" se ha guardado correctamente y estará disponible siempre que abras la app.`);
+                showModal("¡Producto Guardado!", `El producto "${name}" se ha guardado correctamente.`);
             } catch (err) {
                 console.error("Error guardando producto:", err);
             }
@@ -1091,6 +1140,10 @@
                     ? 'bg-rose-950/20 hover:bg-rose-950/30 transition border-l-2 border-l-rose-500' 
                     : 'hover:bg-zinc-900/60 transition border-l-2 border-l-transparent';
 
+                const wholesaleStr = item.wholesalePrice && item.wholesaleMin > 0 
+                    ? `$${parseFloat(item.wholesalePrice).toFixed(2)} <span class="text-[10px] text-zinc-500 block">(+${item.wholesaleMin}${isWeighted ? 'kg' : 'u'})</span>` 
+                    : '-';
+
                 tr.innerHTML = `
                     <td class="p-4 font-mono text-xs text-zinc-500">${item.code || '-'}</td>
                     <td class="p-4 font-medium text-zinc-200">
@@ -1103,6 +1156,7 @@
                     <td class="p-4 text-zinc-400">${item.category || 'General'}</td>
                     <td class="p-4 text-center font-bold ${isCritical ? 'text-rose-400' : 'text-zinc-200'}">${stockText}</td>
                     <td class="p-4 text-right font-semibold text-zinc-300">$${parseFloat(item.price).toFixed(2)}${isWeighted ? '/kg' : ''}</td>
+                    <td class="p-4 text-right font-semibold text-indigo-300">${wholesaleStr}</td>
                     <td class="p-4 text-center space-x-1">
                         <button onclick="editItem('${item.id}')" class="p-1.5 bg-zinc-900 hover:bg-indigo-500/20 hover:text-indigo-400 text-zinc-400 rounded-lg transition border border-zinc-800" title="Editar">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -1126,6 +1180,8 @@
             document.getElementById('itemCategory').value = item.category || '';
             document.getElementById('itemStock').value = item.stock;
             document.getElementById('itemPrice').value = item.price;
+            document.getElementById('itemWholesalePrice').value = item.wholesalePrice !== undefined && item.wholesalePrice !== null ? item.wholesalePrice : '';
+            document.getElementById('itemWholesaleMin').value = item.wholesaleMin !== undefined && item.wholesaleMin !== null ? item.wholesaleMin : '';
             document.getElementById('itemIsWeighted').checked = !!item.isWeighted;
 
             document.getElementById('formTitle').innerHTML = `
@@ -1138,16 +1194,9 @@
 
         window.deleteItem = async function(id) {
             try {
-                // 1. Filtrar el array en memoria
                 inventory = inventory.filter(i => i.id !== id);
-                
-                // 2. Sincronizar en LocalStorage inmediatamente
                 saveToLocalStorage();
-                
-                // 3. Eliminar de IndexedDB si la base de datos está disponible
                 await dbDelete('products', id);
-
-                // 4. Actualizar la interfaz de usuario
                 updateUI();
             } catch (err) {
                 console.error("Error al eliminar el producto:", err);
@@ -1174,12 +1223,14 @@
             sql += `    nombre VARCHAR(255) NOT NULL,\n`;
             sql += `    categoria VARCHAR(100),\n`;
             sql += `    stock DECIMAL(10, 3) NOT NULL DEFAULT 0.000,\n`;
-            sql += `    precio DECIMAL(10, 2) NOT NULL DEFAULT 0.00,\n`;
+            sql += `    precio_menor DECIMAL(10, 2) NOT NULL DEFAULT 0.00,\n`;
+            sql += `    precio_mayor DECIMAL(10, 2) DEFAULT NULL,\n`;
+            sql += `    minimo_mayorista DECIMAL(10, 3) DEFAULT NULL,\n`;
             sql += `    pesable TINYINT(1) DEFAULT 0\n`;
             sql += `);\n\n`;
 
             if (inventory.length > 0) {
-                sql += `INSERT INTO productos (id, codigo, nombre, categoria, stock, precio, pesable) VALUES\n`;
+                sql += `INSERT INTO productos (id, codigo, nombre, categoria, stock, precio_menor, precio_mayor, minimo_mayorista, pesable) VALUES\n`;
                 const values = inventory.map(item => {
                     const safeId = (item.id || '').replace(/'/g, "''");
                     const safeCode = (item.code || '').replace(/'/g, "''");
@@ -1187,8 +1238,10 @@
                     const safeCategory = (item.category || 'General').replace(/'/g, "''");
                     const stockVal = parseFloat(item.stock) || 0;
                     const priceVal = parseFloat(item.price) || 0;
+                    const wholesalePriceVal = item.wholesalePrice ? parseFloat(item.wholesalePrice).toFixed(2) : 'NULL';
+                    const wholesaleMinVal = item.wholesaleMin ? parseFloat(item.wholesaleMin).toFixed(3) : 'NULL';
                     const isWeightedVal = item.isWeighted ? 1 : 0;
-                    return `('${safeId}', '${safeCode}', '${safeName}', '${safeCategory}', ${stockVal.toFixed(3)}, ${priceVal.toFixed(2)}, ${isWeightedVal})`;
+                    return `('${safeId}', '${safeCode}', '${safeName}', '${safeCategory}', ${stockVal.toFixed(3)}, ${priceVal.toFixed(2)}, ${wholesalePriceVal}, ${wholesaleMinVal}, ${isWeightedVal})`;
                 });
                 sql += values.join(',\n') + ';\n\n';
             }
